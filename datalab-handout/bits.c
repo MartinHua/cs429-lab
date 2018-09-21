@@ -188,6 +188,9 @@ int bitAnd(int x, int y) {
  *   Rating: 2
  */
 int getByte(int x, int n) {
+  /*
+   * right shift x by 8*n bits and take the LSB
+   */
   return (x >> (n << 3)) & 0xFF;
 }
 /* 
@@ -214,7 +217,8 @@ int logicalShift(int x, int n) {
  */
 int bitCount(int x) {
   /*
-   * Use three masks: 0x55555555, 0x33333333, 0x0F0F0F0F.
+   * Use three masks: 0x55555555, 0x33333333, 0x0F0F0F0F to get bit count for each byte
+   * Then combine these four counts by two shifts
    */
   int mask1 = (0x55 << 8) + 0x55;
   int mask2 = (0x33 << 8) + 0x33;
@@ -391,6 +395,13 @@ unsigned float_neg(unsigned uf) {
  *   Rating: 4
  */
 unsigned float_i2f(int x) {
+  /*
+   * If x is 0, return 0;
+   * If x is MIN_INT, return corresponding float;
+   * Then we can take inverse if x is negative;
+   * Find the left most 1 in |x|.
+   * Round to even.
+   */
   int mask = 1 << 31;
   int sign = x & mask;
   int frac;
@@ -432,6 +443,7 @@ unsigned float_twice(unsigned uf) {
    * If float is +0 or -0, return the float;
    * If exp is 0xFF, return the float;
    * If exp is 0, return the float that left shifted by 1;
+   * Otherwise, just add one for exponent.
    */
   int exp = (uf >> 23) & 0xFF;
   if (uf == 0 || uf == 0x80000000) {
